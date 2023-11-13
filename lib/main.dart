@@ -1,6 +1,8 @@
+import 'package:brainluck_editor/logic/settings_cubit/settings_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:brainluck_editor/constants.dart';
 import 'package:brainluck_editor/router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() async {
   runApp(const MyApp());
@@ -18,15 +20,19 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: appName,
-      theme: ThemeData.light(useMaterial3: true),
-      darkTheme: ThemeData.dark(useMaterial3: true),
-      themeMode: ThemeMode.system,
-      onGenerateRoute: _appRouter.onGenerateRoute,
-      initialRoute: RouteNames.home,
+    return BlocProvider(
+      create: (context) => SettingsCubit(),
+      child: ThemeModeBuilder(
+        builder: (context, settings) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: appName,
+          theme: ThemeData.light(useMaterial3: true),
+          darkTheme: ThemeData.dark(useMaterial3: true),
+          themeMode: settings.themeMode,
+          onGenerateRoute: _appRouter.onGenerateRoute,
+          initialRoute: RouteNames.home,
+        ),
+      ),
     );
   }
 }
-
