@@ -7,6 +7,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'bf_state.dart';
 part 'bf_cubit.freezed.dart';
 
+final _bfCharsRegExp = RegExp(r'[<>.,\[\]+-]');
+
 class BfCubit extends Cubit<BfState> {
   BfCubit() : super(BfState(data: List.generate(stripSize, (_) => 0)));
 
@@ -14,10 +16,10 @@ class BfCubit extends Cubit<BfState> {
   int get currentCellValue => state.data[state.dpointer];
 
   // # INSTRUCTIONS
-  int findIndexOfNext([int start = 0]) {
+  int _findIndexOfNext([int start = 0]) {
     // advances pointer till it finds a valid character
     int i = state.instructions.indexOf(
-      RegExp(r'[<>.,\[\]+-]'),
+      _bfCharsRegExp,
       start,
     );
     if (i == -1) i = state.instructions.length;
@@ -27,14 +29,14 @@ class BfCubit extends Cubit<BfState> {
 
   resetInsPointer() {
     emit(state.copyWith(
-      ipointer: findIndexOfNext(),
+      ipointer: _findIndexOfNext(),
     ));
   }
 
   setInstructions(String instructions) {
     emit(state.copyWith(
       instructions: instructions,
-      ipointer: findIndexOfNext(),
+      ipointer: _findIndexOfNext(),
     ));
   }
   // ##
@@ -49,14 +51,14 @@ class BfCubit extends Cubit<BfState> {
   _moveDataPointerLeft() {
     emit(state.copyWith(
       dpointer: max(state.dpointer - 1, 0),
-      ipointer: findIndexOfNext(state.ipointer + 1),
+      ipointer: _findIndexOfNext(state.ipointer + 1),
     ));
   }
 
   _moveDataPointerRight() {
     emit(state.copyWith(
       dpointer: min(state.dpointer + 1, state.data.length),
-      ipointer: findIndexOfNext(state.ipointer + 1),
+      ipointer: _findIndexOfNext(state.ipointer + 1),
     ));
   }
 
@@ -65,7 +67,7 @@ class BfCubit extends Cubit<BfState> {
     data[state.dpointer] = (data[state.dpointer] + 1) % 256;
     emit(state.copyWith(
       data: data,
-      ipointer: findIndexOfNext(state.ipointer + 1),
+      ipointer: _findIndexOfNext(state.ipointer + 1),
     ));
   }
 
@@ -74,7 +76,7 @@ class BfCubit extends Cubit<BfState> {
     data[state.dpointer] = (data[state.dpointer] - 1) % 256;
     emit(state.copyWith(
       data: data,
-      ipointer: findIndexOfNext(state.ipointer + 1),
+      ipointer: _findIndexOfNext(state.ipointer + 1),
     ));
   }
 
@@ -89,7 +91,7 @@ class BfCubit extends Cubit<BfState> {
     emit(state.copyWith(
       data: data,
       inputPointer: state.inputPointer + 1,
-      ipointer: findIndexOfNext(state.ipointer + 1),
+      ipointer: _findIndexOfNext(state.ipointer + 1),
     ));
   }
 
@@ -100,7 +102,7 @@ class BfCubit extends Cubit<BfState> {
   _writeToOutput() {
     emit(state.copyWith(
       output: state.output + String.fromCharCode(state.data[state.dpointer]),
-      ipointer: findIndexOfNext(state.ipointer + 1),
+      ipointer: _findIndexOfNext(state.ipointer + 1),
     ));
   }
 
@@ -145,9 +147,9 @@ class BfCubit extends Cubit<BfState> {
             if (state.instructions[i] == "]") parenthesisCounter--;
             i++;
           }
-          emit(state.copyWith(ipointer: findIndexOfNext(i + 1)));
+          emit(state.copyWith(ipointer: _findIndexOfNext(i + 1)));
         } else {
-          emit(state.copyWith(ipointer: findIndexOfNext(state.ipointer + 1)));
+          emit(state.copyWith(ipointer: _findIndexOfNext(state.ipointer + 1)));
         }
         break;
       case "]":
@@ -159,9 +161,9 @@ class BfCubit extends Cubit<BfState> {
             if (state.instructions[i] == "]") parenthesisCounter--;
             i--;
           }
-          emit(state.copyWith(ipointer: findIndexOfNext(i + 1)));
+          emit(state.copyWith(ipointer: _findIndexOfNext(i + 1)));
         } else {
-          emit(state.copyWith(ipointer: findIndexOfNext(state.ipointer + 1)));
+          emit(state.copyWith(ipointer: _findIndexOfNext(state.ipointer + 1)));
         }
         break;
       // default:

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:brainluck_editor/presentation/screens/home/home.dart';
 
 class RouteNames {
-  static const String home = "/home";
+  static const String home = "/";
 }
 
 class AppRouter {
