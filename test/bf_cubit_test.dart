@@ -26,6 +26,7 @@ void main() {
     },
     expect: () => [
       predicate<BfState>((p0) => p0.instructions == "+>++[<+>-]"),
+      predicate<BfState>((p0) => p0.locked),
       // +
       matchesState([1, 0], 0, 1),
       // >
@@ -56,7 +57,8 @@ void main() {
       // -
       matchesState([3, 0], 1, 9),
       // ]
-      matchesState([3, 0], 1, 10),
+      matchesState([3, 0], 1, -1),
+      predicate<BfState>((p0) => !p0.locked),
     ],
   );
 }

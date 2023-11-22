@@ -23,8 +23,7 @@ class _BfCodeEditorState extends State<BfCodeEditor> {
     return BfInstructionsListener(
       listener: (_, state) {
         _controller.text = state.instructions;
-        _controller.selectedCharIndex =
-            state.ipointer == state.instructions.length ? null : state.ipointer;
+        _controller.selectedCharIndex = state.ipointer == -1 ? null : state.ipointer;
       },
       child: TextField(
         controller: _controller,

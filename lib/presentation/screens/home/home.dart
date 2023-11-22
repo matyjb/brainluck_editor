@@ -14,57 +14,59 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => BfCubit(),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Brainluck Editor"),
-          actions: [
-            // IconButton(
-            //   onPressed: context.read<BfCubit>().execute,
-            //   icon: const Icon(Icons.play_arrow_rounded),
-            // ),
-            IconButton(
-              onPressed: context.read<BfCubit>().executeOne,
-              icon: const Icon(Icons.skip_next_rounded),
-            ),
-            // IconButton(
-            //   onPressed: () {}, // TODO: stop execute()
-            //   icon: const Icon(Icons.stop_rounded),
-            // ),
-            IconButton(
-              onPressed: context.read<BfCubit>().resetInsPointer,
-              icon: const Icon(Icons.restore_rounded),
-            ),
-            IconButton(
-              onPressed: context.read<BfCubit>().resetData,
-              icon: const Icon(Icons.skip_previous_rounded),
-            ),
-          ],
-        ),
-        body: Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              const BfDataExplorer(),
-              Expanded(
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: CCard(
-                        child: const BfCodeEditor(),
-                      ),
-                    ),
-                    CCard(
-                      child: const BfInputField(),
-                    ),
-                    CCard(
-                      child: const BfOutputField(),
-                    ),
-                  ],
+      child: Builder(
+        builder: (context) => Scaffold(
+            appBar: AppBar(
+              title: const Text("Brainluck Editor"),
+              actions: [
+                // IconButton(
+                //   onPressed: context.read<BfCubit>().execute,
+                //   icon: const Icon(Icons.play_arrow_rounded),
+                // ),
+                IconButton(
+                  onPressed: context.read<BfCubit>().executeOne,
+                  icon: const Icon(Icons.skip_next_rounded),
                 ),
-              )
-            ],
-          ),
-        ),
+                // IconButton(
+                //   onPressed: () {}, // TODO: stop execute()
+                //   icon: const Icon(Icons.stop_rounded),
+                // ),
+                IconButton(
+                  onPressed: context.read<BfCubit>().resetInsPointer,
+                  icon: const Icon(Icons.restore_rounded),
+                ),
+                IconButton(
+                  onPressed: context.read<BfCubit>().resetData,
+                  icon: const Icon(Icons.skip_previous_rounded),
+                ),
+              ],
+            ),
+            body: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  const BfDataExplorer(),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: CCard(
+                            child: const BfCodeEditor(),
+                          ),
+                        ),
+                        CCard(
+                          child: const BfInputField(),
+                        ),
+                        CCard(
+                          child: const BfOutputField(),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
       ),
     );
   }

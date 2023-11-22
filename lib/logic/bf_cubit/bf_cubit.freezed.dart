@@ -16,7 +16,8 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$BfState {
-  dynamic get locked => throw _privateConstructorUsedError;
+  dynamic get locked =>
+      throw _privateConstructorUsedError; // -1 means the program halted
   int get ipointer => throw _privateConstructorUsedError;
   String get instructions => throw _privateConstructorUsedError;
   int get dpointer => throw _privateConstructorUsedError;
@@ -181,7 +182,7 @@ class __$$BfStateImplCopyWithImpl<$Res>
 class _$BfStateImpl implements _BfState {
   const _$BfStateImpl(
       {this.locked = false,
-      this.ipointer = 0,
+      this.ipointer = -1,
       this.instructions = "",
       this.dpointer = 0,
       required final List<int> data,
@@ -193,6 +194,7 @@ class _$BfStateImpl implements _BfState {
   @override
   @JsonKey()
   final dynamic locked;
+// -1 means the program halted
   @override
   @JsonKey()
   final int ipointer;
@@ -276,7 +278,7 @@ abstract class _BfState implements BfState {
 
   @override
   dynamic get locked;
-  @override
+  @override // -1 means the program halted
   int get ipointer;
   @override
   String get instructions;
