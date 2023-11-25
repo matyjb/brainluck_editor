@@ -19,10 +19,16 @@ class _BfCodeEditorState extends State<BfCodeEditor> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    _controller.text = context.read<BfCubit>().state.instructions;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BfInstructionsListener(
       listener: (_, state) {
-        _controller.text = state.instructions;
+        _controller.value = _controller.value.copyWith(text: state.instructions);
         _controller.selectedCharIndex = state.ipointer == -1 ? null : state.ipointer;
       },
       child: TextField(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// based on rich_text_controller package
+
 /// a custom controller based on [TextEditingController] used to activly style input text based on regex patterns and word matching
 /// with some custom features.
 /// {@tool snippet}
@@ -166,7 +168,7 @@ class BfTextController extends TextEditingController {
             ),
             TextSpan(
               text: child.text?[_selectedCharIndex! - s] ?? '',
-              style: const TextStyle(color: Colors.blue),
+              style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
             TextSpan(
               text: child.text?.substring(_selectedCharIndex! - s + 1) ?? '',

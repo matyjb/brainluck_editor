@@ -37,6 +37,7 @@ dependencies:
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
   rich_text_controller: ^1.4.2
+  scrollable_positioned_list: ^0.3.8
 
 dev_dependencies:
   build_runner: ^2.4.6
@@ -78,6 +79,5 @@ flutter:
     - family: SourceCodePro
       fonts:
         - asset: assets/fonts/SourceCodePro-Medium.ttf
-  #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

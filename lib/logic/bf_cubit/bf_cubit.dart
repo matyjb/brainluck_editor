@@ -44,6 +44,7 @@ class BfCubit extends Cubit<BfState> {
   resetData() {
     emit(state.copyWith(
       data: List.generate(stripSize, (_) => 0),
+      dpointer: 0,
     ));
   }
 

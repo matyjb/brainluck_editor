@@ -1,4 +1,5 @@
 import 'package:brainluck_editor/logic/bf_cubit/bf_cubit.dart';
+import 'package:brainluck_editor/presentation/screens/home/widgets/action_buttons.dart';
 import 'package:brainluck_editor/presentation/screens/home/widgets/bf_code_editor.dart';
 import 'package:brainluck_editor/presentation/screens/home/widgets/bf_data_explorer.dart';
 import 'package:brainluck_editor/presentation/screens/home/widgets/bf_input_field.dart';
@@ -16,57 +17,44 @@ class HomeScreen extends StatelessWidget {
       create: (context) => BfCubit(),
       child: Builder(
         builder: (context) => Scaffold(
-            appBar: AppBar(
-              title: const Text("Brainluck Editor"),
-              actions: [
-                // IconButton(
-                //   onPressed: context.read<BfCubit>().execute,
-                //   icon: const Icon(Icons.play_arrow_rounded),
-                // ),
-                IconButton(
-                  onPressed: context.read<BfCubit>().executeOne,
-                  icon: const Icon(Icons.skip_next_rounded),
-                ),
-                // IconButton(
-                //   onPressed: () {}, // TODO: stop execute()
-                //   icon: const Icon(Icons.stop_rounded),
-                // ),
-                IconButton(
-                  onPressed: context.read<BfCubit>().resetInsPointer,
-                  icon: const Icon(Icons.restore_rounded),
-                ),
-                IconButton(
-                  onPressed: context.read<BfCubit>().resetData,
-                  icon: const Icon(Icons.skip_previous_rounded),
-                ),
+          appBar: AppBar(
+            title: const Text("Brainluck Editor"),
+            actions: const [
+              BfExecuteActionButton(),
+              BfExecuteOneActionButton(),
+              // IconButton(
+              //   onPressed: () {}, // TODO: stop execute()
+              //   icon: const Icon(Icons.stop_rounded),
+              // ),
+              BfResetInsPointerActionButton(),
+            ],
+          ),
+          body: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                const BfDataExplorer(),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: CCard(
+                          child: const BfCodeEditor(),
+                        ),
+                      ),
+                      CCard(
+                        child: const BfInputField(),
+                      ),
+                      CCard(
+                        child: const BfOutputField(),
+                      ),
+                    ],
+                  ),
+                )
               ],
             ),
-            body: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  const BfDataExplorer(),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: CCard(
-                            child: const BfCodeEditor(),
-                          ),
-                        ),
-                        CCard(
-                          child: const BfInputField(),
-                        ),
-                        CCard(
-                          child: const BfOutputField(),
-                        ),
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          )
+          ),
+        ),
       ),
     );
   }
