@@ -15,7 +15,7 @@ class _BfInputFieldState extends State<BfInputField> {
   @override
   void initState() {
     super.initState();
-    _controller.text = context.read<BfCubit>().state.input;
+    _controller.text = context.read<BfCubit>().state.editor.input;
   }
 
   @override
@@ -23,7 +23,7 @@ class _BfInputFieldState extends State<BfInputField> {
     return BlocListener<BfCubit, BfState>(
       listener: (context, state) {
         _controller.value =
-            _controller.value.copyWith(text: state.instructions);
+            _controller.value.copyWith(text: state.editor.input);
       },
       child: TextField(
         controller: _controller,

@@ -15,46 +15,57 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => BfCubit(),
-      child: Builder(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text("Brainluck Editor"),
-            actions: const [
-              BfExecuteActionButton(),
-              BfExecuteOneActionButton(),
-              // IconButton(
-              //   onPressed: () {}, // TODO: stop execute()
-              //   icon: const Icon(Icons.stop_rounded),
-              // ),
-              BfResetInsPointerActionButton(),
+      child: BlocBuilder<BfCubit, BfState>(
+        builder: (context, state) {
+          final actions = state.map<List<Widget>?>(
+            running: (state) => [
+              const BfContinueOrPauseActionButton(),
+              const BfRestartActionButton(),
+              const BfStopActionButton(),
             ],
-          ),
-          body: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                const BfDataExplorer(),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: CCard(
-                          child: const BfCodeEditor(),
-                        ),
-                      ),
-                      CCard(
-                        child: const BfInputField(),
-                      ),
-                      CCard(
-                        child: const BfOutputField(),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+            paused: (state) => [
+              const BfContinueOrPauseActionButton(),
+              const BfStepOneActionButton(),
+              const BfRestartActionButton(),
+              const BfStopActionButton(),
+            ],
+            stopped: (state) => [
+              const BfStartActionButton(),
+              const BfStepOneActionButton(),
+            ],
+          );
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text("Brainluck Editor"),
+              actions: actions,
             ),
-          ),
-        ),
+            body: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  const BfDataExplorer(),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        CCard(
+                          child: const BfInputField(),
+                        ),
+                        CCard(
+                          child: const BfOutputField(),
+                        ),
+                        Expanded(
+                          child: CCard(
+                            child: const BfCodeEditor(),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

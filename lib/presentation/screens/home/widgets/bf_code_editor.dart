@@ -21,15 +21,20 @@ class _BfCodeEditorState extends State<BfCodeEditor> {
   @override
   void initState() {
     super.initState();
-    _controller.text = context.read<BfCubit>().state.instructions;
+    _controller.text = context.read<BfCubit>().state.editor.instructions;
   }
 
   @override
   Widget build(BuildContext context) {
     return BfInstructionsListener(
       listener: (_, state) {
-        _controller.value = _controller.value.copyWith(text: state.instructions);
-        _controller.selectedCharIndex = state.ipointer == -1 ? null : state.ipointer;
+        _controller.value = _controller.value.copyWith(
+          text: state.editor.instructions,
+        );
+        _controller.selectedCharIndex = state.mapOrNull(
+          running: (s) => s.program.iPointer,
+          paused: (s) => s.program.iPointer,
+        );
       },
       child: TextField(
         controller: _controller,
@@ -56,9 +61,18 @@ class _BfCodeEditorState extends State<BfCodeEditor> {
 
 class BfInstructionsListener extends BlocListener<BfCubit, BfState> {
   BfInstructionsListener({super.key, super.child, required super.listener})
-      : super(
-          listenWhen: (prev, curr) =>
-              prev.instructions != curr.instructions ||
-              prev.ipointer != curr.ipointer,
-        );
+      : super(listenWhen: (prev, curr) {
+          if (prev.editor.instructions != curr.editor.instructions) return true;
+
+          final iPointerPrev = prev.mapOrNull(
+            running: (s) => s.program.iPointer,
+            paused: (s) => s.program.iPointer,
+          );
+          final iPointerCurr = curr.mapOrNull(
+            running: (s) => s.program.iPointer,
+            paused: (s) => s.program.iPointer,
+          );
+
+          return iPointerPrev != iPointerCurr;
+        });
 }

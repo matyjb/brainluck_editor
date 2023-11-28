@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BfActionButton extends StatelessWidget {
-  final Function() onPressed;
+  final Function()? onPressed;
   final String tooltip;
   final IconData icon;
   const BfActionButton({
@@ -38,55 +38,76 @@ class BfClearOutputActionButton extends StatelessWidget {
   }
 }
 
-class BfClearDataActionButton extends StatelessWidget {
-  const BfClearDataActionButton({super.key});
+class BfStartActionButton extends StatelessWidget {
+  const BfStartActionButton({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BfActionButton(
-      onPressed: context.read<BfCubit>().resetData,
-      tooltip: "Reset cells",
-      icon: Icons.delete_outline_outlined,
-    );
-  }
-}
-
-class BfExecuteOneActionButton extends StatelessWidget {
-  const BfExecuteOneActionButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BfActionButton(
-      onPressed: context.read<BfCubit>().executeOne,
-      tooltip: "Run one instruction",
-      icon: Icons.skip_next_rounded,
-    );
-  }
-}
-
-class BfExecuteActionButton extends StatelessWidget {
-  const BfExecuteActionButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BfActionButton(
-      onPressed: context.read<BfCubit>().execute,
-      tooltip: "Run",
+      onPressed: context.read<BfCubit>().start,
+      tooltip: "Start",
       icon: Icons.play_arrow_rounded,
     );
   }
 }
 
-class BfResetInsPointerActionButton extends StatelessWidget {
-  const BfResetInsPointerActionButton({super.key});
+class BfContinueOrPauseActionButton extends StatelessWidget {
+  const BfContinueOrPauseActionButton({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BfActionButton(
-      onPressed: context.read<BfCubit>().resetInsPointer,
-      tooltip: "Reset instruction pointer",
-      icon: Icons.restore_rounded,
+    return BlocBuilder<BfCubit, BfState>(
+      builder: (context, state) => state.maybeMap(
+        running: (state) => BfActionButton(
+          onPressed: context.read<BfCubit>().continueOrPause,
+          tooltip: "Pause",
+          icon: Icons.pause_rounded,
+        ),
+        orElse: () => BfActionButton(
+          onPressed: context.read<BfCubit>().continueOrPause,
+          tooltip: "Continue",
+          icon: Icons.play_arrow_outlined,
+        ),
+      ),
     );
   }
 }
 
+class BfStopActionButton extends StatelessWidget {
+  const BfStopActionButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BfActionButton(
+      onPressed: context.read<BfCubit>().stop,
+      tooltip: "Stop",
+      icon: Icons.stop_rounded,
+    );
+  }
+}
+
+class BfRestartActionButton extends StatelessWidget {
+  const BfRestartActionButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BfActionButton(
+      onPressed: context.read<BfCubit>().restart,
+      tooltip: "Restart",
+      icon: Icons.restart_alt_rounded,
+    );
+  }
+}
+
+class BfStepOneActionButton extends StatelessWidget {
+  const BfStepOneActionButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BfActionButton(
+      onPressed: context.read<BfCubit>().stepOne,
+      tooltip: "Step one instruction",
+      icon: Icons.skip_next_rounded,
+    );
+  }
+}

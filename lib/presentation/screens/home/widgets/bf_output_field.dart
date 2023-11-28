@@ -12,7 +12,7 @@ class BfOutputField extends StatelessWidget {
       children: [
         Expanded(
           child: BlocBuilder<BfCubit, BfState>(
-            builder: (context, state) => Text(state.output),
+            builder: (context, state) => Text(state.editor.output),
           ),
         ),
         const BfClearOutputActionButton(),

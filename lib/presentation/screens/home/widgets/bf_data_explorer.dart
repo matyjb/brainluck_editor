@@ -17,9 +17,14 @@ class BfDataExplorer extends StatefulWidget {
 class _BfDataExplorerState extends State<BfDataExplorer> {
   final _itemScrollController = ItemScrollController();
 
+  int? _getdPointer(BfState state) => state.mapOrNull(
+        paused: (s) => s.program.dPointer,
+        running: (s) => s.program.dPointer,
+      );
+
   void _scrollToCurrent() {
     _itemScrollController.scrollTo(
-      index: context.read<BfCubit>().state.dpointer,
+      index: _getdPointer(context.read<BfCubit>().state) ?? 0,
       duration: const Duration(milliseconds: 200),
       alignment: 0.5,
     );
@@ -28,7 +33,7 @@ class _BfDataExplorerState extends State<BfDataExplorer> {
   @override
   void initState() {
     super.initState();
-    if (context.read<BfCubit>().state.dpointer != 0) {
+    if ((_getdPointer(context.read<BfCubit>().state) ?? 0) != 0) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _scrollToCurrent();
       });
@@ -39,12 +44,11 @@ class _BfDataExplorerState extends State<BfDataExplorer> {
   Widget build(BuildContext context) {
     return BlocListener<BfCubit, BfState>(
       listener: (context, state) => _scrollToCurrent(),
-      listenWhen: (prev, curr) => prev.dpointer != curr.dpointer,
+      listenWhen: (prev, curr) => _getdPointer(prev) != _getdPointer(curr),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 60),
         child: Column(
           children: [
-            const BfClearDataActionButton(),
             BfActionButton(
               onPressed: _scrollToCurrent,
               tooltip: "scroll to pointer",
@@ -57,14 +61,14 @@ class _BfDataExplorerState extends State<BfDataExplorer> {
                 itemCount: stripSize,
                 itemBuilder: (_, i) => BlocBuilder<BfCubit, BfState>(
                   builder: (context, state) => BfDataCell(
-                    value: state.data[i],
-                    highlighted: state.dpointer == i,
+                    value: state.editor.data[i] ?? 0,
+                    highlighted: _getdPointer(state) == i,
                   ),
                   buildWhen: (prev, curr) =>
                       // cell value changed
-                      prev.data[i] != curr.data[i] ||
+                      prev.editor.data[i] != curr.editor.data[i] ||
                       // or pointer started/stopped pointing to i'th cell
-                      ((prev.dpointer == i) ^ (curr.dpointer == i)),
+                      ((_getdPointer(prev) == i) ^ (_getdPointer(curr) == i)),
                 ),
                 separatorBuilder: (_, __) => const SizedBox(height: 2),
               ),
