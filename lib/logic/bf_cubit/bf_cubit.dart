@@ -9,48 +9,47 @@ part 'bf_state.dart';
 part 'bf_cubit.freezed.dart';
 
 const waitTimeMs = 0;
+const maxStepsPerTick = 200;
 // TODO: if instructions are empty, it will throw exception
 
 class BfCubit extends Cubit<BfState> {
   Timer? _ticker;
+  double stepsError = 0;
   BfCubit() : super(BfState.init());
 
   _setTicker() {
     _ticker?.cancel();
-    if (waitTimeMs < 100) {
-      BfState s = state;
-      while (s is BfStateRunning) {
-        // eval till it stops
-        if (s.map(
-          running: (s) => s.program.iPointer >= s.editor.instructions.length,
-          paused: (s) => s.program.iPointer >= s.editor.instructions.length,
-          stopped: (_) => false,
-        )) {
-          s = BfState.stopped(editor: s.editor);
-        } else {
-          final next = _performInstruction(s.editor, s.program);
-          s = BfState.running(editor: next.editor, program: next.program);
+    stepsError = 0;
+    _ticker = Timer.periodic(
+        Duration(milliseconds: max(waitTimeMs, maxStepsPerTick)), (timer) {
+      if (state is BfStateRunning) {
+        int stepsToDo = maxStepsPerTick;
+        if (waitTimeMs != 0) {
+          final s = maxStepsPerTick + stepsError;
+          stepsToDo = s ~/ waitTimeMs;
+          stepsError = s - s.floor();
         }
-      }
-      emit(s);
-    } else {
-      _ticker =
-          Timer.periodic(const Duration(milliseconds: waitTimeMs), (timer) {
-        if (state is BfStateRunning) {
-          final s = state as BfStateRunning;
-          if (_checkIfEnded()) {
-            emit(BfState.stopped(editor: s.editor));
+
+        BfState stateToEmit = state;
+        do {
+          final s = stateToEmit as BfStateRunning;
+          if (_checkIfEnded(s)) {
+            stateToEmit = BfState.stopped(editor: s.editor);
+            break;
           } else {
             final next = _performInstruction(s.editor, s.program);
-            emit(BfState.running(editor: next.editor, program: next.program));
+            stateToEmit =
+                BfState.running(editor: next.editor, program: next.program);
           }
-        }
-      });
-    }
+          stepsToDo--;
+        } while (stepsToDo >= 1);
+        emit(stateToEmit);
+      }
+    });
   }
 
-  bool _checkIfEnded() {
-    return state.map(
+  bool _checkIfEnded([BfState? state]) {
+    return (state ?? this.state).map(
       running: (s) => s.program.iPointer >= s.editor.instructions.length,
       paused: (s) => s.program.iPointer >= s.editor.instructions.length,
       stopped: (_) => false,
@@ -63,14 +62,14 @@ class BfCubit extends Cubit<BfState> {
     await super.close();
   }
 
-  _run(Function onEmit) {
-    if (waitTimeMs < 100) {
-      onEmit();
-      _setTicker();
-    } else {
-      _setTicker();
-      onEmit();
-    }
+  _onRun(BfState nextState) {
+    _setTicker();
+    emit(nextState);
+  }
+
+  _onPauseOrStop(BfState nextState) {
+    emit(nextState);
+    _ticker?.cancel();
   }
 
   // User actions
@@ -84,12 +83,10 @@ class BfCubit extends Cubit<BfState> {
       },
       stopped: (editor) {
         // run program
-        _run(
-          () => emit(BfState.running(
-            editor: editor.copyWith(data: {}),
-            program: const BfProgramState(),
-          )),
-        );
+        _onRun(BfState.running(
+          editor: editor.copyWith(data: {}),
+          program: const BfProgramState(),
+        ));
       },
     );
   }
@@ -98,17 +95,14 @@ class BfCubit extends Cubit<BfState> {
     state.when(
       running: (editor, program) {
         // pause the program
-        emit(BfState.paused(editor: editor, program: program));
-        _ticker?.cancel();
+        _onPauseOrStop(BfState.paused(editor: editor, program: program));
       },
       paused: (editor, program) {
         // continue with program
-        _run(
-          () => emit(BfState.running(
-            editor: editor,
-            program: program,
-          )),
-        );
+        _onRun(BfState.running(
+          editor: editor,
+          program: program,
+        ));
       },
       stopped: (editor) {
         // cant pause or continue not started program
@@ -120,13 +114,11 @@ class BfCubit extends Cubit<BfState> {
     state.when(
       running: (editor, program) {
         // stop the program
-        emit(BfState.stopped(editor: editor));
-        _ticker?.cancel();
+        _onPauseOrStop(BfState.stopped(editor: editor));
       },
       paused: (editor, program) {
         // stop the program
-        emit(BfState.stopped(editor: editor));
-        _ticker?.cancel();
+        _onPauseOrStop(BfState.stopped(editor: editor));
       },
       stopped: (editor) {
         // program is already stopped
@@ -137,20 +129,16 @@ class BfCubit extends Cubit<BfState> {
   restart() {
     state.when(
       running: (editor, program) {
-        _run(
-          () => emit(BfState.running(
-            editor: editor.copyWith(data: {}, output: ""),
-            program: const BfProgramState(),
-          )),
-        );
+        _onRun(BfState.running(
+          editor: editor.copyWith(data: {}, output: ""),
+          program: const BfProgramState(),
+        ));
       },
       paused: (editor, program) {
-        _run(
-          () => emit(BfState.running(
-            editor: editor.copyWith(data: {}, output: ""),
-            program: const BfProgramState(),
-          )),
-        );
+        _onRun(BfState.running(
+          editor: editor.copyWith(data: {}, output: ""),
+          program: const BfProgramState(),
+        ));
       },
       stopped: (editor) {
         // cant restart not started program
