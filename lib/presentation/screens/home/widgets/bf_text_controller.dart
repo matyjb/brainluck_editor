@@ -81,8 +81,8 @@ class BfTextController extends TextEditingController {
   }
 
   set selectedCharIndex(int? index) {
-    notifyListeners();
     _selectedCharIndex = index;
+    notifyListeners();
   }
 
   int? get selectedCharIndex => _selectedCharIndex;
@@ -157,25 +157,26 @@ class BfTextController extends TextEditingController {
     );
     if (_selectedCharIndex != null) {
       int s = 0;
-      for (var child in children) {
-        if (s + (child.text?.length ?? 0) > _selectedCharIndex!) {
+      for (int idx = 0; idx < children.length; idx++) {
+        final child = children[idx];
+        final highlightedCharIdx = _selectedCharIndex! - s;
+        s += child.text?.length ?? 0;
+        if (s > _selectedCharIndex!) {
           // selected char is inside child, split into three spans
-          int idx = children.indexOf(child);
           children.replaceRange(idx, idx + 1, [
             TextSpan(
-              text: child.text?.substring(0, _selectedCharIndex! - s) ?? '',
+              text: child.text?.substring(0, highlightedCharIdx) ?? '',
               style: child.style,
             ),
             TextSpan(
-              text: child.text?[_selectedCharIndex! - s] ?? '',
+              text: child.text?[highlightedCharIdx] ?? '',
               style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
             TextSpan(
-              text: child.text?.substring(_selectedCharIndex! - s + 1) ?? '',
+              text: child.text?.substring(highlightedCharIdx + 1) ?? '',
               style: child.style,
             ),
           ]);
-
           break;
         }
       }
