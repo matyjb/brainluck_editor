@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 
 class BfDataCell extends StatelessWidget {
   final int value;
+  final int address;
   final bool highlighted;
-  const BfDataCell({super.key, required this.value, this.highlighted = false});
+  const BfDataCell({
+    super.key,
+    required this.value,
+    required this.address,
+    this.highlighted = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +24,20 @@ class BfDataCell extends StatelessWidget {
       ),
       child: AspectRatio(
         aspectRatio: 1,
-        child: Center(
-          child: Text(value.toString()),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "#$address",
+              style: Theme.of(context)
+                  .textTheme
+                  .labelSmall!
+                  .copyWith(color: Colors.grey),
+            ),
+            Center(
+              child: Text(value.toString()),
+            ),
+          ],
         ),
       ),
     );

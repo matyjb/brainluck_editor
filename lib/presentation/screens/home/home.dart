@@ -19,15 +19,15 @@ class HomeScreen extends StatelessWidget {
         builder: (context, state) {
           final actions = state.map<List<Widget>?>(
             running: (state) => [
+              const BfStopActionButton(),
               const BfContinueOrPauseActionButton(),
               const BfRestartActionButton(),
-              const BfStopActionButton(),
             ],
             paused: (state) => [
-              const BfContinueOrPauseActionButton(),
-              const BfStepOneActionButton(),
               const BfRestartActionButton(),
               const BfStopActionButton(),
+              const BfContinueOrPauseActionButton(),
+              const BfStepOneActionButton(),
             ],
             stopped: (state) => [
               const BfStartActionButton(),

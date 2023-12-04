@@ -61,6 +61,7 @@ class _BfDataExplorerState extends State<BfDataExplorer> {
                 itemCount: stripSize,
                 itemBuilder: (_, i) => BlocBuilder<BfCubit, BfState>(
                   builder: (context, state) => BfDataCell(
+                    address: i,
                     value: state.editor.data[i] ?? 0,
                     highlighted: _getdPointer(state) == i,
                   ),
