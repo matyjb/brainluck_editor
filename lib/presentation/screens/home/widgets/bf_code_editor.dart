@@ -2,6 +2,7 @@ import 'package:brainluck_editor/logic/bf_cubit/bf_cubit.dart';
 import 'package:brainluck_editor/presentation/screens/home/widgets/bf_text_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class BfCodeEditor extends StatefulWidget {
   const BfCodeEditor({super.key});
@@ -17,6 +18,10 @@ class _BfCodeEditorState extends State<BfCodeEditor> {
       RegExp(r'[^\[\]+\-\.,><]+'): const TextStyle(color: Colors.grey),
     },
   );
+  late final LinkedScrollControllerGroup _scrollControllers =
+      LinkedScrollControllerGroup();
+  late final _scrollControllerLinesNumbers = _scrollControllers.addAndGet();
+  late final _scrollControllerCode = _scrollControllers.addAndGet();
 
   @override
   void initState() {
@@ -25,42 +30,94 @@ class _BfCodeEditorState extends State<BfCodeEditor> {
   }
 
   @override
+  void dispose() {
+    _scrollControllerLinesNumbers.dispose();
+    _scrollControllerCode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BfInstructionsListener(
-      listener: (_, state) {
-        _controller.value = _controller.value.copyWith(
-          text: state.editor.instructions,
-        );
-        _controller.selectedCharIndex = state.mapOrNull(
-          running: (s) => s.program.iPointer,
-          paused: (s) => s.program.iPointer,
-        );
-      },
-      child: TextField(
-        controller: _controller,
-        onChanged: context.read<BfCubit>().setInstructions,
-        style: TextStyle(
-          fontSize: Theme.of(context).textTheme.titleMedium?.fontSize,
-          fontFamily: "SourceCodePro",
+    final codeStyle = TextStyle(
+        fontSize: Theme.of(context).textTheme.titleMedium?.fontSize,
+        fontFamily: "SourceCodePro",
+        height: 1.4,
+        leadingDistribution: TextLeadingDistribution.proportional);
+    final lineNumbersStyle = codeStyle.copyWith(color: Colors.grey);
+
+    return Row(
+      children: [
+        ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+          child: SingleChildScrollView(
+            controller: _scrollControllerLinesNumbers,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4, right: 12),
+              child: BlocBuilder<BfCubit, BfState>(
+                builder: (context, state) {
+                  final linesCount =
+                      RegExp(r'\n').allMatches(_controller.text).length + 1;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (int i = 0; i < linesCount; i++)
+                        Text(
+                          (i+1).toString(),
+                          style: lineNumbersStyle,
+                        )
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
         ),
-        keyboardType: TextInputType.multiline,
-        maxLines: null,
-        autocorrect: false,
-        enableSuggestions: false,
-        decoration: const InputDecoration(
-          hintText: "code",
-          isCollapsed: true,
-          disabledBorder: InputBorder.none,
-          border: InputBorder.none,
-          focusedBorder: InputBorder.none,
+        Flexible(
+          child: LayoutBuilder(builder: (context, contstraints) {
+            return SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: IntrinsicWidth(
+                stepWidth: contstraints.maxWidth,
+                child: BfInstructionsListener(
+                  controller: _controller,
+                  child: TextField(
+                    scrollController: _scrollControllerCode,
+                    controller: _controller,
+                    onChanged: context.read<BfCubit>().setInstructions,
+                    style: codeStyle,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    decoration: const InputDecoration(
+                      hintText: "code",
+                      isCollapsed: true,
+                      disabledBorder: InputBorder.none,
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      isDense: true,
+                      contentPadding: EdgeInsets.only(top: 4),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
-      ),
+      ],
     );
   }
 }
 
 class BfInstructionsListener extends BlocListener<BfCubit, BfState> {
-  BfInstructionsListener({super.key, super.child, required super.listener})
+  final BfTextController controller;
+  final Function(int)? onInstructionsChange;
+  BfInstructionsListener(
+      {super.key,
+      super.child,
+      required this.controller,
+      this.onInstructionsChange})
       : super(listenWhen: (prev, curr) {
           if (prev.editor.instructions != curr.editor.instructions) return true;
 
@@ -74,5 +131,13 @@ class BfInstructionsListener extends BlocListener<BfCubit, BfState> {
           );
 
           return iPointerPrev != iPointerCurr;
+        }, listener: (_, state) {
+          controller.value = controller.value.copyWith(
+            text: state.editor.instructions,
+          );
+          controller.selectedCharIndex = state.mapOrNull(
+            running: (s) => s.program.iPointer,
+            paused: (s) => s.program.iPointer,
+          );
         });
 }

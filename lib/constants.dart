@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
+
 const String appName = "brainluck_editor";
-const int stripSize = 1000;
+const int stripSize = kDebugMode ? 100 : 30000;
 
 const String bfHelloWorld = """
 Hello world!
