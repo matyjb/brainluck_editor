@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:brainluck_editor/logic/bf_cubit/bf_cubit.dart';
 import 'package:brainluck_editor/presentation/screens/home/widgets/bf_text_controller.dart';
 import 'package:flutter/material.dart';
@@ -46,30 +48,39 @@ class _BfCodeEditorState extends State<BfCodeEditor> {
     final lineNumbersStyle = codeStyle.copyWith(color: Colors.grey);
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: SingleChildScrollView(
-            controller: _scrollControllerLinesNumbers,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 4, right: 12),
-              child: BlocBuilder<BfCubit, BfState>(
-                builder: (context, state) {
-                  final linesCount =
-                      RegExp(r'\n').allMatches(_controller.text).length + 1;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      for (int i = 0; i < linesCount; i++)
-                        Text(
-                          (i+1).toString(),
-                          style: lineNumbersStyle,
-                        )
-                    ],
-                  );
-                },
-              ),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4, right: 12),
+            child: Column(
+              children: [
+                Expanded(
+                  child: BlocBuilder<BfCubit, BfState>(
+                    builder: (context, state) {
+                      final linesCount =
+                          RegExp(r'\n').allMatches(_controller.text).length + 1;
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: ((log(linesCount) / ln10).floor() + 1) *
+                              (codeStyle.fontSize ?? 15) /
+                              1.5,
+                        ),
+                        child: ListView.builder(
+                          controller: _scrollControllerLinesNumbers,
+                          itemCount: linesCount,
+                          itemBuilder: (context, i) => Text(
+                            (i + 1).toString(),
+                            style: lineNumbersStyle,
+                            textAlign: TextAlign.end,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ),
